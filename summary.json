@@ -1,0 +1,318 @@
+{
+  "root_group": {
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": [
+      {
+        "checks": [
+          {
+            "fails": 0,
+            "name": "status is 200",
+            "path": "::Flight Search — Istanbul → Ankara::status is 200",
+            "id": "7a1e5dec8812d3acbfa36daea1d3b574",
+            "passes": 19
+          },
+          {
+            "fails": 0,
+            "name": "response time < 2000ms",
+            "path": "::Flight Search — Istanbul → Ankara::response time < 2000ms",
+            "id": "228b7de75735802537df5451b8791ec3",
+            "passes": 19
+          },
+          {
+            "name": "response is not empty",
+            "path": "::Flight Search — Istanbul → Ankara::response is not empty",
+            "id": "a597a49cd4fc0b450ea10f320e6aca3a",
+            "passes": 19,
+            "fails": 0
+          },
+          {
+            "name": "body contains route info",
+            "path": "::Flight Search — Istanbul → Ankara::body contains route info",
+            "id": "2cba737bac6e85f0e38602206d49cce9",
+            "passes": 19,
+            "fails": 0
+          },
+          {
+            "name": "content-type is HTML",
+            "path": "::Flight Search — Istanbul → Ankara::content-type is HTML",
+            "id": "ee78e208333f0d6c09b5e16011db352f",
+            "passes": 19,
+            "fails": 0
+          }
+        ],
+        "name": "Flight Search — Istanbul → Ankara",
+        "path": "::Flight Search — Istanbul → Ankara",
+        "id": "f90477ce37b0cd6f18cdc5c2669c9575",
+        "groups": []
+      }
+    ],
+    "checks": []
+  },
+  "options": {
+    "noColor": true,
+    "summaryTrendStats": [
+      "avg",
+      "min",
+      "med",
+      "max",
+      "p(90)",
+      "p(95)",
+      "p(99)"
+    ],
+    "summaryTimeUnit": ""
+  },
+  "state": {
+    "isStdOutTTY": false,
+    "isStdErrTTY": false,
+    "testRunDurationMs": 30746.2858
+  },
+  "metrics": {
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 361.92174,
+        "p(95)": 377.3332,
+        "p(99)": 405.030888,
+        "avg": 203.8307631578947,
+        "min": 99.2388,
+        "med": 154.2521,
+        "max": 407.3298
+      },
+      "thresholds": {
+        "p(95)<2000": {
+          "ok": true
+        }
+      }
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 19487,
+        "rate": 633.8001320471691
+      }
+    },
+    "iterations": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 19,
+        "rate": 0.6179608204903891
+      }
+    },
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 201.9919526315789,
+        "min": 98.7344,
+        "med": 154.2521,
+        "max": 403.0007,
+        "p(90)": 357.72087999999997,
+        "p(95)": 374.16657999999995,
+        "p(99)": 400.376876
+      }
+    },
+    "group_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 612.9002,
+        "max": 724.899,
+        "p(90)": 666.97166,
+        "p(95)": 692.26077,
+        "p(99)": 718.371354,
+        "avg": 618.1170421052632,
+        "min": 548.8455
+      }
+    },
+    "vus": {
+      "contains": "default",
+      "values": {
+        "value": 1,
+        "min": 1,
+        "max": 1
+      },
+      "type": "gauge"
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 1,
+        "min": 1,
+        "max": 1
+      }
+    },
+    "flight_search_errors": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "passes": 0,
+        "fails": 19
+      },
+      "thresholds": {
+        "rate<0.05": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_receiving": {
+      "contains": "time",
+      "values": {
+        "avg": 1.8276912280701756,
+        "min": 0,
+        "med": 1.0104,
+        "max": 6.8527,
+        "p(90)": 4.7255199999999995,
+        "p(95)": 5.200199999999997,
+        "p(99)": 6.294379999999998
+      },
+      "type": "trend"
+    },
+    "http_reqs": {
+      "contains": "default",
+      "values": {
+        "count": 57,
+        "rate": 1.8538824614711673
+      },
+      "type": "counter"
+    },
+    "checks": {
+      "contains": "default",
+      "values": {
+        "rate": 1,
+        "passes": 95,
+        "fails": 0
+      },
+      "thresholds": {
+        "rate>0.95": {
+          "ok": true
+        }
+      },
+      "type": "rate"
+    },
+    "iteration_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 1667.4543199999998,
+        "p(95)": 1692.7551199999998,
+        "p(99)": 1718.838704,
+        "avg": 1618.4793052631576,
+        "min": 1549.3811,
+        "med": 1613.0585,
+        "max": 1725.3596
+      }
+    },
+    "http_req_duration{expected_response:true}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 377.3332,
+        "p(99)": 405.030888,
+        "avg": 203.8307631578947,
+        "min": 99.2388,
+        "med": 154.2521,
+        "max": 407.3298,
+        "p(90)": 361.92174
+      }
+    },
+    "data_received": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 1031677,
+        "rate": 33554.5244947928
+      }
+    },
+    "http_req_sending": {
+      "values": {
+        "max": 0.3198,
+        "p(90)": 0,
+        "p(95)": 0,
+        "p(99)": 0.316552,
+        "avg": 0.011119298245614034,
+        "min": 0,
+        "med": 0
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_blocked": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "min": 0,
+        "med": 0,
+        "max": 100.6085,
+        "p(90)": 0,
+        "p(95)": 0,
+        "p(99)": 44.267739999999776,
+        "avg": 1.765061403508772
+      }
+    },
+    "http_req_failed": {
+      "thresholds": {
+        "rate<0.01": {
+          "ok": true
+        }
+      },
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "fails": 57,
+        "rate": 0,
+        "passes": 0
+      }
+    },
+    "flight_search_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 344.4775421052632,
+        "min": 297.7951,
+        "med": 351.1719,
+        "max": 407.3298,
+        "p(90)": 387.96876000000003,
+        "p(95)": 403.63512,
+        "p(99)": 406.590864
+      },
+      "thresholds": {
+        "p(95)<2000": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_connecting": {
+      "values": {
+        "min": 0,
+        "med": 0,
+        "max": 40.0497,
+        "p(90)": 0,
+        "p(95)": 0,
+        "p(99)": 17.62186799999991,
+        "avg": 0.7026263157894737
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 0,
+        "p(95)": 0,
+        "p(99)": 24.433551999999874,
+        "avg": 0.9742245614035088,
+        "min": 0,
+        "med": 0,
+        "max": 55.5308
+      }
+    }
+  }
+}

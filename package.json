@@ -1,0 +1,22 @@
+{
+  "name": "enuygun-k6-loadtest",
+  "version": "1.0.0",
+  "description": "k6 load test for the Enuygun flight search functionality (QA portfolio project).",
+  "private": true,
+  "scripts": {
+    "test": "k6 run flightSearch.test.js",
+    "test:debug": "k6 run --http-debug=\"full\" flightSearch.test.js",
+    "test:json": "k6 run --out json=results.json flightSearch.test.js",
+    "test:quiet": "k6 run --quiet flightSearch.test.js"
+  },
+  "keywords": [
+    "k6",
+    "load-testing",
+    "performance-testing",
+    "qa",
+    "portfolio",
+    "enuygun",
+    "flight-search"
+  ],
+  "license": "MIT"
+}

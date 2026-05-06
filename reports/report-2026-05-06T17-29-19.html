@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>k6 Load Test Report — Enuygun Flight Search</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f172a;
+      --surface:  #1e293b;
+      --border:   #334155;
+      --text:     #e2e8f0;
+      --muted:    #94a3b8;
+      --accent:   #6366f1;
+      --pass:     #22c55e;
+      --fail:     #ef4444;
+      --warn:     #f59e0b;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 24px;
+    }
+
+    a { color: var(--accent); }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+    }
+    header .logo { font-size: 11px; color: var(--muted); letter-spacing: 2px;
+                   text-transform: uppercase; margin-bottom: 8px; }
+    header h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    header .meta { color: var(--muted); font-size: 12px; }
+    header .meta span { margin-right: 20px; }
+    .overall { margin-top: 14px; }
+
+    /* ── Stat cards ─────────────────────────────────────────── */
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      min-width: 120px;
+      flex: 1 1 120px;
+    }
+    .card-value { font-size: 22px; font-weight: 700; color: var(--accent); }
+    .card-label { font-size: 12px; font-weight: 600; margin-top: 2px; }
+    .card-sub   { font-size: 11px; color: var(--muted); }
+
+    /* ── Sections ───────────────────────────────────────────── */
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Tables ─────────────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(51,65,85,0.4);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr.has-threshold td { background: rgba(99,102,241,0.04); }
+    tfoot td { border-top: 1px solid var(--border); background: rgba(30,41,59,0.6); }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    code {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 12px;
+      background: rgba(99,102,241,0.12);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+    .dim { color: var(--muted); }
+    .stat-label { color: var(--muted); font-size: 11px; }
+    .type-cell { color: var(--muted); font-size: 12px; }
+    .metrics-table td:last-child { font-variant-numeric: tabular-nums; }
+
+    /* ── Badges ─────────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .badge-pass { background: rgba(34,197,94,0.15);  color: var(--pass); }
+    .badge-fail { background: rgba(239,68,68,0.15);  color: var(--fail); }
+    .badge-lg   { font-size: 13px; padding: 5px 14px; }
+    .badge-xs   { font-size: 10px; padding: 1px 5px; }
+
+    /* ── Charts ─────────────────────────────────────────────── */
+    .charts-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .chart-wrap, .gauge-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      flex: 1 1 300px;
+    }
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+    svg text { font-family: 'Segoe UI', sans-serif; }
+
+    /* ── Footer ─────────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">k6 Load Test Report</div>
+  <h1>Enuygun — Flight Search Module</h1>
+  <div class="meta">
+    <span>🌐 www.enuygun.com</span>
+    <span>✈️ Istanbul → Ankara</span>
+    <span>⏱ 2026-05-06 17:29:19 UTC</span>
+    <span>🔧 k6 v2.0.0-rc1</span>
+  </div>
+  <div class="overall"><span class="badge badge-pass badge-lg">ALL THRESHOLDS PASSED</span></div>
+</header>
+
+<div class="cards">
+    <div class="card">
+      <div class="card-value">30.5 s</div>
+      <div class="card-label">Duration</div>
+      <div class="card-sub">test run</div>
+    </div>
+    <div class="card">
+      <div class="card-value">18</div>
+      <div class="card-label">Iterations</div>
+      <div class="card-sub">completed</div>
+    </div>
+    <div class="card">
+      <div class="card-value">54</div>
+      <div class="card-label">HTTP Requests</div>
+      <div class="card-sub">total</div>
+    </div>
+    <div class="card">
+      <div class="card-value">367 ms</div>
+      <div class="card-label">Avg Response</div>
+      <div class="card-sub">flight search</div>
+    </div>
+    <div class="card">
+      <div class="card-value">438 ms</div>
+      <div class="card-label">p95 Response</div>
+      <div class="card-sub">flight search</div>
+    </div>
+    <div class="card">
+      <div class="card-value">0.00%</div>
+      <div class="card-label">Error Rate</div>
+      <div class="card-sub">http_req_failed</div>
+    </div>
+    <div class="card">
+      <div class="card-value">100.00%</div>
+      <div class="card-label">Checks Passed</div>
+      <div class="card-sub">all assertions</div>
+    </div></div>
+
+<div class="charts-row">
+  
+  <div class="chart-wrap">
+    <h3 class="chart-title">Response Time Breakdown (Flight Search)</h3>
+    <svg viewBox="0 0 440 236" width="100%" style="max-width:440px">
+      <!-- budget line -->
+      <line x1="354" y1="0" x2="354" y2="236"
+            stroke="#22c55e" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+      <text x="357" y="10" font-size="9" fill="#22c55e" opacity="0.8">
+        2000 ms budget
+      </text>
+      
+      <text x="30" y="24" text-anchor="end"
+            font-size="11" fill="#94a3b8">avg</text>
+      <rect x="36" y="10" width="58.376309400000004" height="20"
+            rx="3" fill="#6366f1" opacity="0.85"/>
+      <text x="99.3763094" y="24"
+            font-size="11" fill="#e2e8f0">367 ms</text>
+      <text x="30" y="60" text-anchor="end"
+            font-size="11" fill="#94a3b8">p50</text>
+      <rect x="36" y="46" width="57.8790846" height="20"
+            rx="3" fill="#8b5cf6" opacity="0.85"/>
+      <text x="98.8790846" y="60"
+            font-size="11" fill="#e2e8f0">364 ms</text>
+      <text x="30" y="96" text-anchor="end"
+            font-size="11" fill="#94a3b8">p90</text>
+      <rect x="36" y="82" width="65.52578097" height="20"
+            rx="3" fill="#f59e0b" opacity="0.85"/>
+      <text x="106.52578097" y="96"
+            font-size="11" fill="#e2e8f0">412 ms</text>
+      <text x="30" y="132" text-anchor="end"
+            font-size="11" fill="#94a3b8">p95</text>
+      <rect x="36" y="118" width="69.70190325" height="20"
+            rx="3" fill="#f97316" opacity="0.85"/>
+      <text x="110.70190325" y="132"
+            font-size="11" fill="#e2e8f0">438 ms</text>
+      <text x="30" y="168" text-anchor="end"
+            font-size="11" fill="#94a3b8">p99</text>
+      <rect x="36" y="154" width="72.09513944999999" height="20"
+            rx="3" fill="#ef4444" opacity="0.85"/>
+      <text x="113.09513944999999" y="168"
+            font-size="11" fill="#e2e8f0">453 ms</text>
+      <text x="30" y="204" text-anchor="end"
+            font-size="11" fill="#94a3b8">max</text>
+      <rect x="36" y="190" width="72.6934485" height="20"
+            rx="3" fill="#dc2626" opacity="0.85"/>
+      <text x="113.6934485" y="204"
+            font-size="11" fill="#e2e8f0">457 ms</text>
+    </svg>
+  </div>
+  
+  <div class="gauge-wrap">
+    <h3 class="chart-title">HTTP Error Rate</h3>
+    <svg viewBox="0 0 100 100" width="140" height="140">
+      <circle cx="50" cy="50" r="38"
+              fill="none" stroke="#1e293b" stroke-width="10"/>
+      <circle cx="50" cy="50" r="38"
+              fill="none" stroke="#22c55e" stroke-width="10"
+              stroke-dasharray="0.00 238.76"
+              stroke-dashoffset="59.690260418206066"
+              stroke-linecap="round" transform="rotate(-90 50 50)"/>
+      <text x="50" y="46" text-anchor="middle"
+            font-size="14" font-weight="700" fill="#22c55e">0.00%</text>
+      <text x="50" y="62" text-anchor="middle"
+            font-size="8" fill="#94a3b8">error rate</text>
+    </svg>
+  </div>
+</div>
+
+
+  <section>
+    <h2>Checks</h2>
+    <table>
+      <thead><tr><th></th><th>Check</th><th class="num">Passed</th>
+             <th class="num">Failed</th><th class="num">Rate</th></tr></thead>
+      <tbody>
+      <tr>
+        <td><span class="badge badge-pass">✓</span></td>
+        <td>status is 200</td>
+        <td class="num">18</td>
+        <td class="num">0</td>
+        <td class="num"><strong>100%</strong></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-pass">✓</span></td>
+        <td>response time < 2000ms</td>
+        <td class="num">18</td>
+        <td class="num">0</td>
+        <td class="num"><strong>100%</strong></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-pass">✓</span></td>
+        <td>response is not empty</td>
+        <td class="num">18</td>
+        <td class="num">0</td>
+        <td class="num"><strong>100%</strong></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-pass">✓</span></td>
+        <td>body contains route info</td>
+        <td class="num">18</td>
+        <td class="num">0</td>
+        <td class="num"><strong>100%</strong></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-pass">✓</span></td>
+        <td>content-type is HTML</td>
+        <td class="num">18</td>
+        <td class="num">0</td>
+        <td class="num"><strong>100%</strong></td>
+      </tr></tbody>
+      <tfoot><tr>
+        <td></td><td><strong>Total</strong></td>
+        <td class="num"><strong>90</strong></td>
+        <td class="num"><strong>0</strong></td>
+        <td class="num"><strong>100%</strong></td>
+      </tr></tfoot>
+    </table>
+  </section>
+
+  <section>
+    <h2>Thresholds</h2>
+    <table>
+      <thead><tr><th>Result</th><th>Metric</th><th>Expression</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td><code>flight_search_errors</code></td>
+          <td><code>rate<0.05</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td><code>checks</code></td>
+          <td><code>rate>0.95</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td><code>http_req_duration</code></td>
+          <td><code>p(95)<2000</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td><code>http_req_failed</code></td>
+          <td><code>rate<0.01</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td><code>flight_search_duration</code></td>
+          <td><code>p(95)<2000</code></td>
+        </tr></tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>All Metrics</h2>
+    <table class="metrics-table">
+      <thead><tr><th>Metric</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr class="has-threshold">
+          <td><code>checks</code></td>
+          <td class="type-cell">rate</td>
+          <td><span class="badge badge-pass badge-xs">✓</span> 100.00% &nbsp;<span class="dim">✓ 90 / ✗ 0</span></td>
+        </tr>
+        <tr>
+          <td><code>data_received</code></td>
+          <td class="type-cell">counter</td>
+          <td>951.1 kB <span class="dim">(31948.88/s)</span></td>
+        </tr>
+        <tr>
+          <td><code>data_sent</code></td>
+          <td class="type-cell">counter</td>
+          <td>18.3 kB <span class="dim">(613.15/s)</span></td>
+        </tr>
+        <tr class="has-threshold">
+          <td><code>flight_search_duration</code></td>
+          <td class="type-cell">trend</td>
+          <td><span class="badge badge-pass badge-xs">✓</span> <span class="stat-label">avg</span> 367 ms&ensp;<span class="stat-label">min</span> 315 ms&ensp;<span class="stat-label">med</span> 364 ms&ensp;<span class="stat-label">max</span> 457 ms&ensp;<span class="stat-label">p(90)</span> 412 ms&ensp;<span class="stat-label">p(95)</span> 438 ms&ensp;<span class="stat-label">p(99)</span> 453 ms</td>
+        </tr>
+        <tr class="has-threshold">
+          <td><code>flight_search_errors</code></td>
+          <td class="type-cell">rate</td>
+          <td><span class="badge badge-pass badge-xs">✓</span> 0.00% &nbsp;<span class="dim">✓ 0 / ✗ 18</span></td>
+        </tr>
+        <tr>
+          <td><code>group_duration</code></td>
+          <td class="type-cell">trend</td>
+          <td><span class="stat-label">avg</span> 693 ms&ensp;<span class="stat-label">min</span> 595 ms&ensp;<span class="stat-label">med</span> 687 ms&ensp;<span class="stat-label">max</span> 798 ms&ensp;<span class="stat-label">p(90)</span> 785 ms&ensp;<span class="stat-label">p(95)</span> 791 ms&ensp;<span class="stat-label">p(99)</span> 797 ms</td>
+        </tr>
+        <tr>
+          <td><code>http_req_blocked</code></td>
+          <td class="type-cell">trend</td>
+          <td><span class="stat-label">avg</span> 2 ms&ensp;<span class="stat-label">min</span> 0 µs&ensp;<span class="stat-label">med</span> 0 µs&ensp;<span class="stat-label">max</span> 96 ms&ensp;<span class="stat-label">p(90)</span> 0 µs&ensp;<span class="stat-label">p(95)</span> 0 µs&ensp;<span class="stat-label">p(99)</span> 45 ms</td>
+        </tr>
+        <tr>
+          <td><code>http_req_connecting</code></td>
+          <td class="type-cell">trend</td>
+          <td><span class="stat-label">avg</span> 675 µs&ensp;<span class="stat-label">min</span> 0 µs&ensp;<span class="stat-label">med</span> 0 µs&ensp;<span class="stat-label">max</span> 36 ms&ensp;<span class="stat-label">p(90)</span> 0 µs&ensp;<span class="stat-label">p(95)</span> 0 µs&ensp;<span class="stat-label">p(99)</span> 17 ms</td>
+        </tr>
+        <tr class="has-threshold">
+          <td><code>http_req_duration</code></td>
+          <td class="type-cell">trend</td>
+          <td><span class="badge badge-pass badge-xs">✓</span> <span class="stat-label">avg</span> 229 ms&ensp;<span class="stat-label">min</span> 118 ms&ensp;<span class="stat-label">med</span> 174 ms&ensp;<span class="stat-label">max</span> 457 ms&ensp;<span class="stat-label">p(90)</span> 375 ms&ensp;<span class="stat-label">p(95)</span> 396 ms&ensp;<span class="stat-label">p(99)</span> 445 ms</td>
+        </tr>
+        <tr>
+          <td><code>http_req_duration{expected_response:true}</code></td>
+          <td class="type-cell">trend</td>
+          <td><span class="stat-label">avg</span> 229 ms&ensp;<span class="stat-label">min</span> 118 ms&ensp;<span class="stat-label">med</span> 174 ms&ensp;<span class="stat-label">max</span> 457 ms&ensp;<span class="stat-label">p(90)</span> 375 ms&ensp;<span class="stat-label">p(95)</span> 396 ms&ensp;<span class="stat-label">p(99)</span> 445 ms</td>
+        </tr>
+        <tr class="has-threshold">
+          <td><code>http_req_failed</code></td>
+          <td class="type-cell">rate</td>
+          <td><span class="badge badge-pass badge-xs">✓</span> 0.00% &nbsp;<span class="dim">✓ 0 / ✗ 54</span></td>
+        </tr>
+        <tr>
+          <td><code>http_req_receiving</code></td>
+          <td class="type-cell">trend</td>
+          <td><span class="stat-label">avg</span> 2 ms&ensp;<span class="stat-label">min</span> 0 µs&ensp;<span class="stat-label">med</span> 1 ms&ensp;<span class="stat-label">max</span> 10 ms&ensp;<span class="stat-label">p(90)</span> 5 ms&ensp;<span class="stat-label">p(95)</span> 6 ms&ensp;<span class="stat-label">p(99)</span> 9 ms</td>
+        </tr>
+        <tr>
+          <td><code>http_req_sending</code></td>
+          <td class="type-cell">trend</td>
+          <td><span class="stat-label">avg</span> 27 µs&ensp;<span class="stat-label">min</span> 0 µs&ensp;<span class="stat-label">med</span> 0 µs&ensp;<span class="stat-label">max</span> 635 µs&ensp;<span class="stat-label">p(90)</span> 0 µs&ensp;<span class="stat-label">p(95)</span> 112 µs&ensp;<span class="stat-label">p(99)</span> 571 µs</td>
+        </tr>
+        <tr>
+          <td><code>http_req_tls_handshaking</code></td>
+          <td class="type-cell">trend</td>
+          <td><span class="stat-label">avg</span> 1 ms&ensp;<span class="stat-label">min</span> 0 µs&ensp;<span class="stat-label">med</span> 0 µs&ensp;<span class="stat-label">max</span> 55 ms&ensp;<span class="stat-label">p(90)</span> 0 µs&ensp;<span class="stat-label">p(95)</span> 0 µs&ensp;<span class="stat-label">p(99)</span> 26 ms</td>
+        </tr>
+        <tr>
+          <td><code>http_req_waiting</code></td>
+          <td class="type-cell">trend</td>
+          <td><span class="stat-label">avg</span> 227 ms&ensp;<span class="stat-label">min</span> 117 ms&ensp;<span class="stat-label">med</span> 174 ms&ensp;<span class="stat-label">max</span> 453 ms&ensp;<span class="stat-label">p(90)</span> 370 ms&ensp;<span class="stat-label">p(95)</span> 391 ms&ensp;<span class="stat-label">p(99)</span> 442 ms</td>
+        </tr>
+        <tr>
+          <td><code>http_reqs</code></td>
+          <td class="type-cell">counter</td>
+          <td>54 <span class="dim">(1.77/s)</span></td>
+        </tr>
+        <tr>
+          <td><code>iteration_duration</code></td>
+          <td class="type-cell">trend</td>
+          <td><span class="stat-label">avg</span> 1.69 s&ensp;<span class="stat-label">min</span> 1.60 s&ensp;<span class="stat-label">med</span> 1.69 s&ensp;<span class="stat-label">max</span> 1.80 s&ensp;<span class="stat-label">p(90)</span> 1.79 s&ensp;<span class="stat-label">p(95)</span> 1.79 s&ensp;<span class="stat-label">p(99)</span> 1.80 s</td>
+        </tr>
+        <tr>
+          <td><code>iterations</code></td>
+          <td class="type-cell">counter</td>
+          <td>18 <span class="dim">(0.59/s)</span></td>
+        </tr>
+        <tr>
+          <td><code>vus</code></td>
+          <td class="type-cell">gauge</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><code>vus_max</code></td>
+          <td class="type-cell">gauge</td>
+          <td>1</td>
+        </tr></tbody>
+    </table>
+  </section>
+
+<footer>
+  Generated by <strong>lib/htmlReport.js</strong> from <code>summary.json</code> &mdash;
+  Enuygun QA Portfolio &bull; k6 load test
+</footer>
+
+</body>
+</html>
